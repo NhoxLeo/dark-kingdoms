@@ -1,0 +1,27 @@
+﻿<Properties>
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\kingdom_section.cs">
+    <Files>
+      <File FileName="Assets\scripts\init_orc_warrior_stats.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\armySpawner.cs" Line="102" Column="53" />
+      <File FileName="Assets\scripts\orc_stats.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\orc_ctrl.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\orcTeam.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\orc_melee_attack.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\orc_warrior.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\targetting.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\init_archer_stats.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\range_attack.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\archer.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\misc_global_data.cs" Line="6" Column="51" />
+      <File FileName="Assets\scripts\setSectionToLoad.cs" Line="5" Column="4" />
+      <File FileName="Assets\scripts\lvlmgr.cs" Line="1" Column="1" />
+      <File FileName="Assets\scripts\fillInSectionInfo.cs" Line="14" Column="38" />
+      <File FileName="Assets\scripts\kingdom_section.cs" Line="27" Column="23" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+</Properties>
