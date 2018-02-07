@@ -19,52 +19,54 @@ public class orc_ctrl : MonoBehaviour {
 	orc_stats myStats = null;
 
 	// general movement
-	int dir_x = 0;
-	int dir_y = 1;
+	float dir_x = 0;
+	float dir_y = 1.0f;
 	float min_x = 0.5f;
 	float max_x = 15.5f;
 	float min_y = 0.5f;
 	float max_y = 11.5f;
-	int stride = 30;
+	int stride = 30;        // makes random movement more natural by increasing chance to keep your current direction
 	int courseStay = 0;		// prevent reversing dir after wall hit just reversed dir
 	
 	void check_edge() {
 		if (transform.position.x < min_x) {
-			dir_x = 1;
+			dir_x = 1.0f;
 			dir_y = 0;
 			courseStay = stride;
 		} else if (transform.position.x > max_x) {
-			dir_x = -1;
+			dir_x = -1.0f;
 			dir_y = 0;
 			courseStay = stride;
 		}
 		
 		if (transform.position.y < min_y) {
 			dir_x = 0;
-			dir_y = 1;
+			dir_y = 1.0f;
 			courseStay = stride;
 		} else if (transform.position.y > max_y) {
 			dir_x = 0;
-			dir_y = -1;
+			dir_y = -1.0f;
 			courseStay = stride;
 		}
 	}
 	
 	// move random, unless courseStay is set (e.g. we just hit a boundary)
 	void mv_random() {
-		int chg_x, chg_y;
+		float chg_x, chg_y;
 
 		// don't change direction if we just hit the wall
 		if (courseStay > 0) {
 			courseStay--;
 		} else {
+            // stride tends to keep an orc going in the same direction
+            // only occasionally changing direction
 			chg_x = Random.Range(-1, stride);
 			chg_y = Random.Range(-1, stride);
 
-			if (chg_x < 2)
+			if (chg_x < 2.0)
 				dir_x = chg_x;
-			if (chg_y < 2)
-				dir_y = chg_y;;
+			if (chg_y < 2.0)
+				dir_y = chg_y;
 		}
 		
 		check_edge();
@@ -80,31 +82,42 @@ public class orc_ctrl : MonoBehaviour {
 	
 	// stay within a certain range of target
 	void mvt_stayWithin() {
-        //print(myStats.teamName + myStats.enemyTeam);
-        //print("ME" + transform.position + "THEM " + myStats.target.transform.position);
-        //print(Vector3.Distance(transform.position, myStats.target.transform.position));
-
 		if (Vector3.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange)
 			return;
 
-        if (transform.position.x < myStats.target.transform.position.x) {
-			dir_x = 1;
-		} else if (transform.position.x > myStats.target.transform.position.x) {
-			dir_x = -1;
+        float diffX = transform.position.x - myStats.target.transform.position.x;
+        float diffY = transform.position.y - myStats.target.transform.position.y;
+
+        // get the x and y direction to move in
+        if (diffX < 0) {
+			dir_x = 1.0f;
+		} else if (diffX > 0) {
+			dir_x = -1.0f;
 		} else {
 			dir_x = 0;
 		}
-		
-		if (transform.position.y < myStats.target.transform.position.y) {
-			dir_y = 1;
-		} else if (transform.position.y > myStats.target.transform.position.y) {
-			dir_y = -1;
+		if (diffY < 0) {
+			dir_y = 1.0f;
+		} else if (diffY > 0) {
+			dir_y = -1.0f;
 		} else {
 			dir_y = 0;
 		}
-		
-		check_edge();
-        
+
+        // normalize movement to 1 for whichever is the larger gap, x or y
+        // thios pretty much makes you move straight to your target
+        diffX = Mathf.Abs(diffX);
+        diffY = Mathf.Abs(diffY);
+        if (diffX > diffY)
+        {
+            dir_y = dir_y * (diffY / diffX);
+        } else
+        {
+            dir_x = dir_x * (diffX / diffY);
+        }
+
+        check_edge();
+
 		transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
 	}
 	
@@ -140,7 +153,10 @@ public class orc_ctrl : MonoBehaviour {
 		myStats = GetComponent<orc_stats>();
 		
 		if (myStats.teamName == "brown")
-			dir_y = -1;
+        {
+            dir_y = -1.0f;
+        }
+			
 	}
 	
 	// Update is called once per frame
@@ -149,6 +165,15 @@ public class orc_ctrl : MonoBehaviour {
 			do_mvt();
 			return;
 		}
+
+        // prevents orc from moving away from battle after killin
+        // target and before acquiring new target
+        if (myStats.hadTarget > 0)
+        {
+            myStats.hadTarget--;
+            return;
+        }
+
 		do_mv();
 	}
 	

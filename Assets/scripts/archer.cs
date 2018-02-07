@@ -40,7 +40,7 @@ public class archer : MonoBehaviour {
 		armySpawner = (armySpawner) armySpawnerObj.GetComponent(typeof(armySpawner));
 		
 		float initDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
-		InvokeRepeating("archer_impl", 5f, 1.5f + initDelay);
+		InvokeRepeating("archer_impl", 3f, 1.5f + initDelay);
 	}
 	
 	GameObject findTarget() {
@@ -50,20 +50,20 @@ public class archer : MonoBehaviour {
 	// Update is called once per frame
 	void archer_impl () {
 		if (myStats.target == null) {
-			// get visible enemies
-			myStats.enemies = Physics2D.OverlapCircleAll(transform.position, myStats.visibleRange,
-			                                             1 << LayerMask.NameToLayer(myStats.enemyTeam));
-			
-			myStats.target = findTarget();
+            // get visible enemies
+            myStats.enemies = Physics2D.OverlapCircleAll(transform.position, myStats.visibleRange,
+                                                        1 << LayerMask.NameToLayer(myStats.enemyTeam));
+
+            myStats.target = findTarget();
 			
 			if (myStats.target == null)
 				// didn't see anyone to fight
 				return;	
-			
-			myStats.targetRange = range.ranged;
 		}
-		
-		if (Vector3.Distance(transform.position, myStats.target.transform.position) < range.ranged) {
+
+        myStats.hadTarget = orc_stats.justKilledTargetDelay;
+
+        if (Vector3.Distance(transform.position, myStats.target.transform.position) < range.ranged) {
 			my_ranged_attack.bow_hit(myStats.target);
 		}
 	}

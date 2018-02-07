@@ -35,6 +35,9 @@ public class targetting : MonoBehaviour {
         
 		nearestDistance = Vector3.Distance(transform.position, targets[0].transform.position);
 		for (int i = 1; i < targets.Length; i++) {
+            if (targets[i] == null)
+                continue;
+
             //print("Me " + gameObject.GetInstanceID() + "   target " + targets[i].gameObject.GetInstanceID());
 			if ((temp = Vector3.Distance(transform.position, targets[i].transform.position)) < nearestDistance) {
 				nearestDistance = temp;

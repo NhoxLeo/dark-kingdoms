@@ -10,8 +10,8 @@ public class armySpawner : MonoBehaviour {
 	public GameObject archerObj;
 	public int numAlive;
 	public Text numAliveText;
-	
-	public const int MAX_UNITS = 200;
+
+    public const int MAX_UNITS = 800;
 	const int ROW_SIZE = 100;
 	const float X_START_BOTTOM = 15.0f;
 	const float Y_START_BOTTOM = 1.0f;
@@ -39,8 +39,23 @@ public class armySpawner : MonoBehaviour {
 		// zero out all positions
 		for (i = 0; i < MAX_UNITS; i++)
 			army[i].used = false;
-		
-		if ((numOrcs == 0) && (numArchers == 0))
+
+        for (i = 0; i < MAX_UNITS / 4; i++)
+        {
+            army[i].used = true;
+            army[i].type = unitType.archer;
+        }
+
+        for (i = MAX_UNITS / 4; i < MAX_UNITS; i++)
+        {
+            army[i].used = true;
+            army[i].type = unitType.orc_warrior;
+        }
+
+        return;
+
+
+        if ((numOrcs == 0) && (numArchers == 0))
 			return;
 		
 		if (numOrcs > ROW_SIZE)
@@ -117,11 +132,15 @@ public class armySpawner : MonoBehaviour {
             }
             
             if (armyArray[i].used == false) continue;
-            
+
             if (armyArray[i].type == unitType.archer)
+            {
                 temp = Instantiate(archerObj, spawnPoint, Quaternion.identity) as GameObject;
+            }
             else
+            {
                 temp = Instantiate(orcObj, spawnPoint, Quaternion.identity) as GameObject;
+            }
             newOrc = temp.GetComponent<orc_stats>();
             newOrc.teamName = gameObject.tag;
             if (gameObject.tag == "brown")
@@ -134,7 +153,6 @@ public class armySpawner : MonoBehaviour {
                 newOrc.enemyTeam = "brown";
                 //print("BROWN " + temp.GetInstanceID());
             }
-            //temp.layer = LayerMask.NameToLayer(newOrc.enemyTeam);
         }
 	}
 }

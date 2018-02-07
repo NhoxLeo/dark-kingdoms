@@ -9,11 +9,12 @@ public class init_archer_stats : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		myStats = GetComponent<orc_stats>();
-		
-		myStats.max_health = 25;
+
+        float speedVar = Random.Range(0.0f, myStats.speedVariance);
+        myStats.speed += speedVar;
+
+        myStats.max_health = 25;
 		myStats.health = myStats.max_health;
-		myStats.melee_dmg_max = 4;
-		myStats.ranged_dmg_min = 1;
-		myStats.ranged_dmg_max = 6;
-	}
+        myStats.targetRange = range.ranged;
+    }
 }
