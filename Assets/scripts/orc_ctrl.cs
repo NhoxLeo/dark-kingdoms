@@ -83,8 +83,10 @@ public class orc_ctrl : MonoBehaviour {
 	// stay within a certain range of target
 	void mvt_stayWithin() {
 		if (Vector3.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange)
+            // we are as close to the target as we want to be
 			return;
 
+        // get X and Y distance to target
         float diffX = transform.position.x - myStats.target.transform.position.x;
         float diffY = transform.position.y - myStats.target.transform.position.y;
 
@@ -105,19 +107,18 @@ public class orc_ctrl : MonoBehaviour {
 		}
 
         // normalize movement to 1 for whichever is the larger gap, x or y
-        // thios pretty much makes you move straight to your target
+        // this makes you move straight to your target
         diffX = Mathf.Abs(diffX);
         diffY = Mathf.Abs(diffY);
-        if (diffX > diffY)
-        {
+        if (diffX > diffY) {
             dir_y = dir_y * (diffY / diffX);
-        } else
-        {
+        } else {
             dir_x = dir_x * (diffX / diffY);
         }
 
         check_edge();
 
+        // move this object
 		transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
 	}
 	
@@ -152,8 +153,7 @@ public class orc_ctrl : MonoBehaviour {
 	void Start () {
 		myStats = GetComponent<orc_stats>();
 		
-		if (myStats.teamName == "brown")
-        {
+		if (myStats.teamName == "brown") {
             dir_y = -1.0f;
         }
 			
@@ -168,8 +168,7 @@ public class orc_ctrl : MonoBehaviour {
 
         // prevents orc from moving away from battle after killin
         // target and before acquiring new target
-        if (myStats.hadTarget > 0)
-        {
+        if (myStats.hadTarget > 0) {
             myStats.hadTarget--;
             return;
         }

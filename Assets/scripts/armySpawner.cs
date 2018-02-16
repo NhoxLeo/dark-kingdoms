@@ -40,6 +40,7 @@ public class armySpawner : MonoBehaviour {
 		for (i = 0; i < MAX_UNITS; i++)
 			army[i].used = false;
 
+        
         for (i = 0; i < MAX_UNITS / 4; i++)
         {
             army[i].used = true;
@@ -53,7 +54,7 @@ public class armySpawner : MonoBehaviour {
         }
 
         return;
-
+        
 
         if ((numOrcs == 0) && (numArchers == 0))
 			return;
