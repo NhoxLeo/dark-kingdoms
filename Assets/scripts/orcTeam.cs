@@ -8,33 +8,48 @@ public class orcTeam : MonoBehaviour {
 	public Text numOrcsText;
 	public Slider numArchers;
 	public Text numArchersText;
+
 	public int numAlive = 0;
 	
+    // get number of melee orcs from melee orc slider
 	public int get_numOrcs() {
-		return ((int)numOrcs.value);
+        
+        return ((int)numOrcs.value);
 	}
 	
+    // update Text for number of orcs and calculater possible archers
 	public void set_numOrcsText() {
 		int numOrcs = get_numOrcs();
-	
+        
 		numOrcsText.text = numOrcs.ToString();
 		numArchers.maxValue = armySpawner.MAX_UNITS - numOrcs;
 	}
-	
-	public int get_numArchers() {
-		return ((int)numArchers.value);
+
+    // get number of archers from archer slider
+    public int get_numArchers() {
+        
+        return ((int)numArchers.value);
 	}
-	
-	public void set_numArchersText() {
+
+    // update Text for number of archers and calculater possible orcs
+    public void set_numArchersText() {
 		int numArchers = get_numArchers();
-		
-		numArchersText.text = numArchers.ToString();
+        
+        numArchersText.text = numArchers.ToString();
 		numOrcs.maxValue = armySpawner.MAX_UNITS - numArchers;
 	}
 	
+    void initSliders() {
+        numOrcs.maxValue = armySpawner.MAX_UNITS * 0.75f;
+        numOrcs.value = numOrcs.maxValue;
+
+        numArchers.maxValue = armySpawner.MAX_UNITS * 0.25f;
+        numArchers.value = numArchers.maxValue;
+    }
+
 	// Use this for initialization
 	void Start () {
 		DontDestroyOnLoad(gameObject);
-		set_numOrcsText();
+        initSliders();
 	}
 }

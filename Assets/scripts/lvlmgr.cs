@@ -1,13 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class lvlmgr : MonoBehaviour {
 
 	public void loadlevel(string name) {
-		Application.LoadLevel(name);
-	}
-	
-	public void quitGame() {
-		Application.Quit();
+		SceneManager.LoadScene(name);
 	}
 }

@@ -15,20 +15,20 @@ public struct mv {
 
 public class orc_ctrl : MonoBehaviour {
 
-	// script references
-	orc_stats myStats = null;
+    // references to other scripts on this unit's gameObject
+    public orc_stats myStats;
 
 	// general movement
 	float dir_x = 0;
 	float dir_y = 1.0f;
-	float min_x = 0.5f;
-	float max_x = 15.5f;
+	float min_x = 0.6f;
+	float max_x = 15.4f;
 	float min_y = 0.5f;
-	float max_y = 11.5f;
+	float max_y = 23.5f;
 	int stride = 30;        // makes random movement more natural by increasing chance to keep your current direction
-	int courseStay = 0;		// prevent reversing dir after wall hit just reversed dir
-	
-	void check_edge() {
+	int courseStay = 0;     // prevent reversing dir after wall hit just reversed dir
+
+    void check_edge() {
 		if (transform.position.x < min_x) {
 			dir_x = 1.0f;
 			dir_y = 0;
@@ -82,7 +82,7 @@ public class orc_ctrl : MonoBehaviour {
 	
 	// stay within a certain range of target
 	void mvt_stayWithin() {
-		if (Vector3.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange)
+		if (Vector2.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange)
             // we are as close to the target as we want to be
 			return;
 
@@ -150,33 +150,29 @@ public class orc_ctrl : MonoBehaviour {
 	}
 	
 	// Use this for initialization
-	void Start () {
-		myStats = GetComponent<orc_stats>();
-		
+	void Start () {		
 		if (myStats.teamName == "brown") {
             dir_y = -1.0f;
         }
-			
-	}
+    }
 	
 	// Update is called once per frame
 	void Update () {
 		if (myStats.target != null) {
-			do_mvt();
-			return;
+            do_mvt();
+            return;
 		}
 
-        // prevents orc from moving away from battle after killin
-        // target and before acquiring new target
+        // prevents orc from immediately moving away from battle
+        // after killing target and before acquiring new target
         if (myStats.hadTarget > 0) {
             myStats.hadTarget--;
             return;
         }
 
-		do_mv();
-	}
-	
-	void OnCollisionEnter2D(Collision2D collision) {
-		print("COLLISION");
-	}
+        //do_mv();      XXX let's cut down on function calls, see if that helps performance
+        //mv_march();
+        check_edge();
+        transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
+    }
 }

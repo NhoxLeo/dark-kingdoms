@@ -2,7 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public enum unitType {orc_warrior, archer};
+public enum unitType {orc_warrior, archer, none};
 
 public class armySpawner : MonoBehaviour {
 
@@ -11,19 +11,14 @@ public class armySpawner : MonoBehaviour {
 	public int numAlive;
 	public Text numAliveText;
 
-    public const int MAX_UNITS = 800;
+    public const int MAX_UNITS = 2000;
 	const int ROW_SIZE = 100;
-	const float X_START_BOTTOM = 15.0f;
-	const float Y_START_BOTTOM = 1.0f;
-	const float X_START_TOP = 1.0f;
-	const float Y_START_TOP = 11.0f;
+	const float X_START_BOTTOM = 14.9f;
+	const float Y_START_BOTTOM = 1.5f;
+	const float X_START_TOP = 1.1f;
+	const float Y_START_TOP = 22.5f;
 	
 	orcTeam myTeam;
-	
-	struct unit {
-		public bool used;
-		public unitType type;
-	}
 	
 	public void updateNumAlive() {
 		numAliveText.text = numAlive.ToString();
@@ -33,50 +28,24 @@ public class armySpawner : MonoBehaviour {
 	// front row orcs
 	// back row archers
 	//
-	void dynamic_row_setup(unit[] army, int numOrcs, int numArchers) {
-		int i, startThisRow;
+	void dynamic_row_setup(unitType[] army, int numOrcs, int numArchers) {
+		int i;
 		
 		// zero out all positions
 		for (i = 0; i < MAX_UNITS; i++)
-			army[i].used = false;
-
-        
-        for (i = 0; i < MAX_UNITS / 4; i++)
-        {
-            army[i].used = true;
-            army[i].type = unitType.archer;
-        }
-
-        for (i = MAX_UNITS / 4; i < MAX_UNITS; i++)
-        {
-            army[i].used = true;
-            army[i].type = unitType.orc_warrior;
-        }
-
-        return;
-        
+			army[i] = unitType.none;
 
         if ((numOrcs == 0) && (numArchers == 0))
 			return;
-		
-		if (numOrcs > ROW_SIZE)
-			numOrcs = ROW_SIZE;
-		
-		if (numArchers > ROW_SIZE)
-			numArchers = ROW_SIZE;
-		
+
 		// setup archers
-		startThisRow = (0 * ROW_SIZE) + ((ROW_SIZE - numArchers) / 2);
 		for (i = 0; i < numArchers; i++) {
-			army[startThisRow + i].used = true;
-			army[startThisRow + i].type = unitType.archer;
+			army[i] = unitType.archer;
 		}
 		
 		// setup orcs
-		startThisRow = (1 * ROW_SIZE) + ((ROW_SIZE - numOrcs) / 2);
 		for (i = 0; i < numOrcs; i++) {
-			army[startThisRow + i].used = true;
-			army[startThisRow + i].type = unitType.orc_warrior;
+			army[numArchers + i] = unitType.orc_warrior;
 		}
 	}
 	
@@ -88,8 +57,8 @@ public class armySpawner : MonoBehaviour {
 		int numOrcs, numArchers, i;
 		float spawnIntervalX;
 		float spawnIntervalY;
-		Vector3 spawnPoint ;
-		unit[] armyArray = new unit[MAX_UNITS];
+		Vector3 spawnPoint;
+		unitType[] armyArray = new unitType[MAX_UNITS];
 
         if (gameObject.tag == "brown")
             {
@@ -132,9 +101,9 @@ public class armySpawner : MonoBehaviour {
                 spawnPoint.x = x_start;
             }
             
-            if (armyArray[i].used == false) continue;
+            if (armyArray[i] == unitType.none) continue;
 
-            if (armyArray[i].type == unitType.archer)
+            if (armyArray[i] == unitType.archer)
             {
                 temp = Instantiate(archerObj, spawnPoint, Quaternion.identity) as GameObject;
             }

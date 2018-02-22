@@ -9,59 +9,51 @@ using System.Collections;
 // - set targetRange to melee
 public class orc_warrior : MonoBehaviour {
 
-	// script references
-	orc_stats myStats = null;
-	targetting myTrg = null;
-	orc_melee_attack my_melee_attack = null;
+    // references to other scripts on this unit's gameObject
+    public orc_stats myStats;
+	public targetting myTrg;
+	public orc_melee_attack my_melee_attack;
 	
 	GameObject armySpawnerObj;
 	armySpawner armySpawner;
 
-	public void apply_damage(int damage) {
-		// could have just been killed
-		if (myStats.health < 0) return;
-		
-		myStats.health -= damage;
-		
-		if (myStats.health < 0) {
-			armySpawner.numAlive--;
-			armySpawner.updateNumAlive();
-			
-			if (armySpawner.numAlive == 0) {
-				print(myStats.enemyTeam + " WON");
-			}
-			
-			Destroy(gameObject);
-		}
-	}
-
 	// Use this for initialization
 	void Start () {
-		myStats = GetComponent<orc_stats>();
-		myTrg = GetComponent<targetting>();
-		my_melee_attack = GetComponent<orc_melee_attack>();
-		
-		armySpawnerObj = GameObject.Find(gameObject.tag + " spawner");
+        armySpawnerObj = GameObject.Find(gameObject.tag + " spawner");
 		armySpawner = (armySpawner) armySpawnerObj.GetComponent(typeof(armySpawner));
-		
-		float initDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
-		InvokeRepeating("warrior_impl", 3f, 1.5f + initDelay);
+
+        // init unit-specific or archer-specific attributes
+        float speedVar = Random.Range(0.0f, myStats.speedVariance);
+        myStats.speed += speedVar;
+        myStats.health = myStats.max_health;
+        myStats.targetRange = orc_stats.meleeRange;
+        myStats.visibleRange = orc_stats.meleeRange * 2.0f;
+
+        float initDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
+		InvokeRepeating("warrior_impl", 3f, 2.5f + initDelay);
 	}
-	
-	GameObject findTarget() {
-		return myTrg.findNearestEnemy();
-	}
-	
-	// Update is called once per frame
-	void warrior_impl () {
+
+    // Update is called once per frame
+    void warrior_impl () {
 		if (myStats.target == null) {
             // get visible enemies
             //print(myStats.teamName + " looking for " + myStats.enemyTeam);
+            
             myStats.enemies = Physics2D.OverlapCircleAll(transform.position, myStats.visibleRange,
             					1 << LayerMask.NameToLayer(myStats.enemyTeam));
             
+            if (myStats.blooded && (myStats.enemies.Length < targetting.visTargThreshold)) {
+                if (myStats.visibleRange < orc_stats.maxVisRange) {
+                    myStats.visibleRange += targetting.addToVis;
+                    if (myStats.visibleRange > orc_stats.maxVisRange) {
+                        myStats.visibleRange = orc_stats.maxVisRange;
+                    }
+                }
+                    
+            }
+
             //print("LOOKED FOR TARGETS " + myStats.enemies.Length);
-            myStats.target = findTarget();
+            myStats.target = myTrg.findNearestEnemy();
 
             //print(gameObject.GetInstanceID() + " killing " + myStats.target.GetInstanceID());
 
@@ -75,8 +67,8 @@ public class orc_warrior : MonoBehaviour {
 
         myStats.hadTarget = orc_stats.justKilledTargetDelay;
 
-		if (Vector3.Distance(transform.position, myStats.target.transform.position) < range.melee) {
-			my_melee_attack.sword_hit(myStats.target);
+		if (Vector2.Distance(transform.position, myStats.target.transform.position) < orc_stats.meleeRange) {
+			my_melee_attack.swordHit(myStats.target);
 		}
 	}
 }

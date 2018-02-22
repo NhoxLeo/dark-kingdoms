@@ -22,17 +22,19 @@
 		
 <body background="stone wall.jpg">
 
-<div style="display:inline-block;vertical-align:top;">
-    <video id="stevequiz" controls preload >
-        <source src="dark_kingdoms_1-00.mp4">
-</video>
-</div>
-
 <div class="white-text" style="display:inline-block;">
-	<p class="side-text">A small project in which I am attempting to design large-scale, autonomous battles.  The units include code for movement, targeting and attacks.<br/></p>
+	<p class="side-text">
+		A small project in which I am attempting to design large-scale, autonomous battles.  The main trade-off I have used to allow massive<br/>
+		battles without extreme lag is turn turn off all collisions between units.  The unit prefabs do include a collider, so that they may<br/>
+		be picked up by Physics.2D.overlapCircleAll() (which I use for finding an enemy target) but they don;t actually collide with each other.<br/>
+		This means they run over each other and get packed pretty closes together, not the most realistic situation, but I think it still looks<br/>
+		pretty decent and battle-lie.  There is also no movement or battle animation.  Once I learn the basics of Unity animation, I will add<br/>
+		some simple animation and see how it impacts the scale I am able to achieve.  Each unit includes its own code for controlling its<br/>
+		movement, targeting and attacks.<br/>
+	</p>
 	<ul>
 		<li>the prototype can handle 200 v 200 battles before starting to lag</li>
-		<li> sliders for choosing army mix automatically adjust to allow a maximum of 200 units per army</li>
+		<li>sliders for choosing army mix automatically adjust to allow a maximum of 200 units per army</li>
 		<li>I use Physics2D.OverlapCircleAll() to get enemies within visibility range and then choose the closet one using Vector3.Distance()</li>
 		<li>a number of movement strategies are implemented, including random, march and moveWithinDistanceOfTarget</li>
 		<li>random movement is not completely random, it includes a stride attribute which tends to keep units going in the same direction,<br/>
@@ -47,24 +49,24 @@
 	
 </div>
 
-<div>
-<p>
-<br/><br/><br/>
-</p>
-</div>
-
-
 <div style="display:inline-block;vertical-align:top;">
-    <video id="stevequiz" controls preload >
-        <source src="dark_kingdoms_1-01.mp4">
-</video>
+    <video controls preload >
+        <source src="dark_kingdoms_1-00.mp4">
+	</video>
 </div>
+
+<div>
+	<p>
+		<br/><br/><br/>
+	</p>
+</div>
+
 
 <div class="white-text" style="display:inline-block;">
 	<p class="side-text">It's been a few releases of Unity since I first implemented this.  Added some major performance improvements and some movement tweaks</p>
 	<ul>
 		<li>simply turning off all Physics2D collisions for the layers of both armies allowed me to scale up to 800 v 800 with no lag, 1200 v 1200<br/>
-		    with a little lag</li>
+		    with a little lag, an amazing performance win even though there is no actual collision going on between units</li>
 		<li>I tried replacing Physics2D.OverlapCircleAll() with Physics2D.OverlapCircleNonAlloc() but I didn't really see any reduction in lag</li>
 		<li>updated "move to target" algorithm to something that moves directly towards the enemy unit rather going on a diagonal and then straight<br/>
 		    See my code gist for details.......<a class="white-text" href="https://gist.github.com/sdocy/c1af05209212e6bdbd3cc3844f48092b"> mvt_stayWithin()</a></li>
@@ -79,18 +81,79 @@
 	</div>
 </div>
 
-<div class="white-text">
-	<p><br/>TODO:<br/></p>
+<div style="display:inline-block;vertical-align:top;">
+    <video controls preload >
+        <source src="dark_kingdoms_1-01.mp4">
+	</video>
+</div>
+
+<div>
+	<p>
+		<br/><br/><br/>
+	</p>
+</div>
+
+
+<div class="white-text" style="display:inline-block;">
+	<h2 class="side-text">v.1.2  Feb 22, 2018</h2>
+	<p class="side-text">Big Features</p>
 	<ul>
-		<li>Play with something I am calling "dynamic visibility".  Currently, visibility (the radius used for OverLapCircleAll()) is set to 2.0f for all units.<br/>
-		    I am thinking that I could reduce this range when there are lots of units on the board (perhaps 1000+) and increase it as units get killed off.<br/>
-			My assumption is that this could significantly improve performance by reducing the work overLapCircleAll() must do and also reduce the number of<br/>
-			objects my code must examine with Vector3.Distance() to find the closest.  This should be especially useful for melee units who get in close to<br/>
-			to each other.  It will likely have the undesirable effect of causing archers to move closer than I want to their targets, so I will likely<br/>
-			only implement it for melee.</li>
-			<li>play with Vector2.Distance() instead of Vector3.Distance()</li>
-			<li>play with turning off remaining Physics.2D layers for brown and red team, see if it helps performance any more even though there are no<br/>
-			    other objects for them to collide with</li>
-			<li> replace army size hack with actual support for larger army sizes, requires updates to sliders and correctly breaking the armies into rows</li>
+		<li>updated armySpawner with functional, if not pretty (partial rows are not centered, orcs and archers potentially mixed in center row), support<br/>
+		    for multiple rows of each unit type</li>
+		<li>added initSliders() in orcTeam.cs which automatically initializes the orc slider to be 75% of max army size and the archer slider to be 25%</li>
+		<li>pushing army limit to 2000 vs 2000</li>
+		<li>increased battlefield size to accommodate bigger armies</li>
+		<li>added WASD camera movement</li>
+		<li>Implemented dynamic visibility.  Start with small visible ranges for units (archer = visibleRange = rangedRange = 2.0,<br/>
+		    warrior = visibleRange = 2 * meleeRange = 0.6) and increase range by 1.0 anytime they see fewer than 5 enemies, up to a maximum visible<br/>
+			range of 5.0.  The goal is to reduce the overhead of searching for enemies when the battle is at its largest, and gradually allow units to look<br/>
+			farther out for targets when the battle begins to thin out.  Added a 'blooded' orc stat to prevent dynamic visibility from increasing visibility<br/>
+			range while units are still marching to the battle.  `blooded' is set and turns on dynamic visibility once an orc has damaged someone.  I had to<br/>
+			be fairly aggressive in increasing visibility range since looking for targets is triggered by warrior/archer_impl(), which is currently repeated<br/>
+			every 1.5 seconds, while moving happens continuously in update().  Get too lazy with visibility increases and the orcs walk completely out of<br/>
+			range before the larger visibility range can pick up anyone new.</li>
+	</ul>
+	<p class="side-text">Internal fixes, cleanups and optimizations</p>
+	<ul>
+		<li>got rid of 'used' field in unit in armySpawner, instead added unitType 'none' to indicate empty unit spot in army array,<br/>
+		    this let me change armyArray from a struct array (all it contained now was unitType) to a unitType array</li>
+		<li>Tracked down my issue with overLapCircleAll() not seeming to pick up changes in visibilityRange.  The values set for orc stats in the editor<br/>
+		    seem to override the values set when the stats are declared, so I simply deleted the initial stat values in script and went with editor values</li>
+		<li>switched Vector3.Distance() for Vector2.Distance()</li>
+		<li>I tried removing the rigidbody from my unit prefabs, since I don't really use them, but, if anything, it seemed to make lag worse</li>
+		<li>Moved applyDamage() to a new script, interaction.cs, which will hold all inter-unit methods.  Replaced SendMessage("applyDamage") with a<br/>
+		    direct call to applyDamage() (after getting the component) because I read SendMessage() has horrible performance, even though my lag<br/>
+			when battle actually starts isn't too bad right now, it's the marching that's lagging.</li>
+		<li>Got rid of GetComponent() calls to get script references to scripts on the same object and instead linked the scripts to a public variable<br/>
+		    in the editor.</li>
+		<li>removed init_archer_stats.cs and init_orc_warrior_stats.cs, moving their functionality into archer.cs and orc_warrior.cs</li>
+		<li>I tried replacing transform.translate() inside Update() with RigidBody.MovePosition() inside FixedUpdate().  MovePosition() was only able to<br/>
+		    handle 400 vs 400 before lagging horribly.</li>
+	</ul>
+</div>
+
+<div style="display:inline-block;vertical-align:top;">
+    <video width="50%" height="auto" controls preload >
+        <source src="slider.mp4">
+	</video>
+</div>
+
+<div>
+	<p>
+		<br/><br/><br/>
+	</p>
+</div>
+
+
+<div class="white-text">
+	<p>TODO:<br/></p>
+	<ul>
+		<li>play with 'z' value of army units, currently brown team units are all rendered on top of red team units, would be better to mix it up a bit</li>
+		<li>implement trolls - larger sprite, slower movement speed and initiative, much more health, more damage, armor to reduce damage, slightly larger<br/>
+		    melee range, knockback targets.  Hmmm, for knockback to be effective, it should choose a new (hopefully closer) target after it knock its current<br/>
+			target back.</li>
+		<li>change all Vector3 to Vector2</li>
+		<li>investigate moving OverLapCircleAll() from orc_warrior.warrior_impl() and archer.archer_impl() to targetting.findNearestEnemy() to localize</li>
+		    array use and possibly eliminate storing of enemy array in myStats</li>
 	</ul>
 </div>	

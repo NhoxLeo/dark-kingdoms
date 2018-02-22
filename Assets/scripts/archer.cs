@@ -4,57 +4,47 @@ using System.Collections;
 // archer
 public class archer : MonoBehaviour {
 
-	// script references
-	orc_stats myStats = null;
-	targetting myTrg = null;
-	range_attack my_ranged_attack = null;
+    // references to other scripts on this unit's gameObject
+    public orc_stats myStats;
+	public targetting myTrg;
+	public range_attack my_ranged_attack;
 	
 	GameObject armySpawnerObj;
 	armySpawner armySpawner;
 	
-	public void apply_damage(int damage) {
-		// could have just been killed
-		if (myStats.health < 0) return;
-		
-		myStats.health -= damage;
-		
-		if (myStats.health < 0) {
-			armySpawner.numAlive--;
-			armySpawner.updateNumAlive();
-			
-			if (armySpawner.numAlive == 0) {
-				print(myStats.enemyTeam + " WON");
-			}
-			
-			Destroy(gameObject);
-		}
-	}
-	
 	// Use this for initialization
-	void Start () {
-		myStats = GetComponent<orc_stats>();
-		myTrg = GetComponent<targetting>();
-		my_ranged_attack = GetComponent<range_attack>();
-		
+	void Start () {		
 		armySpawnerObj = GameObject.Find(gameObject.tag + " spawner");
 		armySpawner = (armySpawner) armySpawnerObj.GetComponent(typeof(armySpawner));
-		
-		float initDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
-		InvokeRepeating("archer_impl", 3f, 1.5f + initDelay);
-	}
+
+        // init unit-specific or archer-specific attributes
+        float speedVar = Random.Range(0.0f, myStats.speedVariance);
+        myStats.speed += speedVar;
+        myStats.health = myStats.max_health;
+        myStats.targetRange = orc_stats.rangedRange;
+        myStats.visibleRange = orc_stats.rangedRange;
+
+        float initDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
+		InvokeRepeating("archer_impl", 3f, 2.5f + initDelay);
+    }
 	
-	GameObject findTarget() {
-		return myTrg.findNearestEnemy();
-	}
-	
-	// Update is called once per frame
-	void archer_impl () {
+    // Update is called once per frame
+    void archer_impl () {
 		if (myStats.target == null) {
             // get visible enemies
             myStats.enemies = Physics2D.OverlapCircleAll(transform.position, myStats.visibleRange,
                                                         1 << LayerMask.NameToLayer(myStats.enemyTeam));
 
-            myStats.target = findTarget();
+            if (myStats.blooded && (myStats.enemies.Length < targetting.visTargThreshold)) {
+                if (myStats.visibleRange < orc_stats.maxVisRange) {
+                    myStats.visibleRange += targetting.addToVis;
+                    if (myStats.visibleRange > orc_stats.maxVisRange) {
+                        myStats.visibleRange = orc_stats.maxVisRange;
+                    }
+                }
+            }
+
+            myStats.target = myTrg.findNearestEnemy();
 			
 			if (myStats.target == null)
 				// didn't see anyone to fight
@@ -63,8 +53,8 @@ public class archer : MonoBehaviour {
 
         myStats.hadTarget = orc_stats.justKilledTargetDelay;
 
-        if (Vector3.Distance(transform.position, myStats.target.transform.position) < range.ranged) {
-			my_ranged_attack.bow_hit(myStats.target);
+        if (Vector2.Distance(transform.position, myStats.target.transform.position) < orc_stats.rangedRange) {
+			my_ranged_attack.bowHit(myStats.target);
 		}
 	}
 }
