@@ -1,5 +1,5 @@
 <style>
-.side-text {
+	.indent {
 	    margin-left: 20px;
 	}
 	
@@ -15,32 +15,50 @@
 	    text-align: center;
 	}
 	
-	.white-text {
+	body {
 		color: white;
+	}
+	
+	p {
+		margin-left: 20px;
+	}
+	
+	a:visited {
+		color: #ac00e6;
+	}
+	
+	a:hover {
+		color: #00ff00;
 	}
 </style>
 		
 <body background="stone wall.jpg">
 
-<div class="white-text" style="display:inline-block;">
-	<p class="side-text">
-		A small project in which I am attempting to design large-scale, autonomous battles.  The main trade-off I have used to allow massive<br/>
-		battles without extreme lag is turn turn off all collisions between units.  The unit prefabs do include a collider, so that they may<br/>
-		be picked up by Physics.2D.overlapCircleAll() (which I use for finding an enemy target) but they don;t actually collide with each other.<br/>
-		This means they run over each other and get packed pretty closes together, not the most realistic situation, but I think it still looks<br/>
-		pretty decent and battle-lie.  There is also no movement or battle animation.  Once I learn the basics of Unity animation, I will add<br/>
-		some simple animation and see how it impacts the scale I am able to achieve.  Each unit includes its own code for controlling its<br/>
+<div class="center">
+	<h1><br/>Dark Kingdoms<br/></h1>
+		
+	<h2>A kingdom torn by war.<br/><br/></h2>
+</div>
+
+<div style="display:inline-block;">
+	<p>
+		A project in which I am exploring large-scale, autonomous battles.  The main trade-off I have used to allow massive battles without<br/>
+		extreme lag is turn turn off all physics collisions between units.  The unit prefabs do include colliders, so that they may be picked<br/>
+		up by Physics.2D.OverlapCircleAll() (which I use for finding enemy targets) but they don't actually collide with each other.  This<br/>
+		means they run over each other and get packed pretty close together, not the most realistic situation, but I think it still looks<br/>
+		pretty decent and battle-like.  There is also no animation for movement or battle.  Once I learn the basics of Unity animation, I will<br/>
+		add some simple animation and see how it impacts the scale I am able to achieve.  Each unit includes code for controlling its own<br/>
 		movement, targeting and attacks.<br/>
 	</p>
 	<ul>
 		<li>the prototype can handle 200 v 200 battles before starting to lag</li>
-		<li>sliders for choosing army mix automatically adjust to allow a maximum of 200 units per army</li>
-		<li>I use Physics2D.OverlapCircleAll() to get enemies within visibility range and then choose the closet one using Vector3.Distance()</li>
+		<li>sliders for choosing army units automatically adjust to allow a maximum of 200 units per army</li>
+		<li>I use Physics2D.OverlapCircleAll() to get enemies within visibility range and then choose the closet one using Vector2.Distance()</li>
 		<li>a number of movement strategies are implemented, including random, march and moveWithinDistanceOfTarget</li>
 		<li>random movement is not completely random, it includes a stride attribute which tends to keep units going in the same direction,<br/>
 		    occasionally changing direction, for more natural looking wandering</li>
 		<li>armies are setup at the beginning in rows of 100 units, melee in front, archers in back.....or will be once I get the kinks out</li>
-		
+		<li>Check out the code in the project repo.....<a target="_blank" href="https://github.com/sdocy/dark-kingdoms">Dark Kingdoms</a>
 	</ul>
 	
 	<div class="center">
@@ -62,14 +80,14 @@
 </div>
 
 
-<div class="white-text" style="display:inline-block;">
-	<p class="side-text">It's been a few releases of Unity since I first implemented this.  Added some major performance improvements and some movement tweaks</p>
+<div style="display:inline-block;">
+	<p>It's been a few releases of Unity since I first implemented this.  Added some major performance improvements and some movement tweaks</p>
 	<ul>
 		<li>simply turning off all Physics2D collisions for the layers of both armies allowed me to scale up to 800 v 800 with no lag, 1200 v 1200<br/>
 		    with a little lag, an amazing performance win even though there is no actual collision going on between units</li>
 		<li>I tried replacing Physics2D.OverlapCircleAll() with Physics2D.OverlapCircleNonAlloc() but I didn't really see any reduction in lag</li>
-		<li>updated "move to target" algorithm to something that moves directly towards the enemy unit rather going on a diagonal and then straight<br/>
-		    See my code gist for details.......<a class="white-text" href="https://gist.github.com/sdocy/c1af05209212e6bdbd3cc3844f48092b"> mvt_stayWithin()</a></li>
+		<li>updated "move to target" algorithm so that units now move directly toward their target rather going on a diagonal and then straight.  See<br/>
+		    my code gist for details.......<a target="_blank" href="https://gist.github.com/sdocy/c1af05209212e6bdbd3cc3844f48092b"> mvt_stayWithin()</a></li>
 		<li>added small per-unit variance in movement speed, now the armies look much more natural as they charge at each other.  I love when a simple<br/>
 		    idea adds a lot of depth to what you are working on</li>
 		<li>I need to update the sliders to handle the larger army sizes (I currently just hacked my army spawner to get bigger armies) and that will fix<br/>
@@ -94,9 +112,9 @@
 </div>
 
 
-<div class="white-text" style="display:inline-block;">
-	<h2 class="side-text">v.1.2  Feb 22, 2018</h2>
-	<p class="side-text">Big Features</p>
+<div style="display:inline-block;">
+	<h2 class="indent">v.1.2  Feb 22, 2018</h2>
+	<p>Big Features</p>
 	<ul>
 		<li>updated armySpawner with functional, if not pretty (partial rows are not centered, orcs and archers potentially mixed in center row), support<br/>
 		    for multiple rows of each unit type</li>
@@ -113,7 +131,7 @@
 			every 1.5 seconds, while moving happens continuously in update().  Get too lazy with visibility increases and the orcs walk completely out of<br/>
 			range before the larger visibility range can pick up anyone new.</li>
 	</ul>
-	<p class="side-text">Internal fixes, cleanups and optimizations</p>
+	<p>Internal fixes, cleanups and optimizations</p>
 	<ul>
 		<li>got rid of 'used' field in unit in armySpawner, instead added unitType 'none' to indicate empty unit spot in army array,<br/>
 		    this let me change armyArray from a struct array (all it contained now was unitType) to a unitType array</li>
@@ -145,7 +163,7 @@
 </div>
 
 
-<div class="white-text">
+<div>
 	<p>TODO:<br/></p>
 	<ul>
 		<li>play with 'z' value of army units, currently brown team units are all rendered on top of red team units, would be better to mix it up a bit</li>

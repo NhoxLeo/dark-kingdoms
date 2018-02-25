@@ -5,21 +5,21 @@ https://sdocy.github.io/dark-kingdoms/
 
 2-03-18
 
-A small project in which I am attempting to design large-scale, autonomous battles. The units include code
-for movement, targeting and attacks.
-
+A project in which I am exploring large-scale, autonomous battles. The main trade-off I have used to allow
+massive battles without extreme lag is turn turn off all physics collisions between units. The unit prefabs
+do include colliders, so that they may be picked up by Physics.2D.OverlapCircleAll() (which I use for
+finding enemy targets) but they don't actually collide with each other. This means they run over each other
+and get packed pretty close together, not the most realistic situation, but I think it still looks pretty
+decent and battle-like. There is also no animation for movement or battle. Once I learn the basics of Unity
+animation, I will add some simple animation and see how it impacts the scale I am able to achieve. Each
+unit includes code for controlling its own movement, targeting and attacks.
 - the prototype can handle 200 v 200 battles before starting to lag
-
-- sliders for choosing army mix automatically adjust to allow a maximum of 200 units per army
-
+- sliders for choosing army units automatically adjust to allow a maximum of 200 units per army
 - I use Physics2D.OverlapCircleAll() to get enemies within visibility range and then choose the closet one
-  using Vector3.Distance()
-
+  using Vector2.Distance()
 - a number of movement strategies are implemented, including random, march and moveWithinDistanceOfTarget
-
-- random movement is not completely random, it includes a stride attribute which tends to keep units going
+  random movement is not completely random, it includes a stride attribute which tends to keep units going
   in the same direction, occasionally changing direction, for more natural looking wandering
-
 - armies are setup at the beginning in rows of 100 units, melee in front, archers in back.....or will be
   once I get the kinks out
 
@@ -64,7 +64,7 @@ Big Features
   units to look farther out for targets when the battle begins to thin out. Added a 'blooded' orc stat to
   prevent dynamic visibility from increasing visibility range while units are still marching to the battle.
   `blooded' is set and turns on dynamic visibility once an orc has damaged someone. I had to be fairly
-  aggressive in increasing visibility range since looking for targets is triggered by warrior/archer_impl(),
+  aggressive increasing visibility range since looking for targets is triggered by warrior/archer_impl(),
   which is currently repeated every 1.5 seconds, while moving happens continuously in update(). Get too
   lazy with visibility increases and the orcs walk completely out of range before the larger visibility
   range can pick up anyone new.
