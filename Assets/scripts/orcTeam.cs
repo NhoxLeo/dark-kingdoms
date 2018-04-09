@@ -8,8 +8,6 @@ public class orcTeam : MonoBehaviour {
 	public Text numOrcsText;
 	public Slider numArchers;
 	public Text numArchersText;
-
-	public int numAlive = 0;
 	
     // get number of melee orcs from melee orc slider
 	public int get_numOrcs() {
@@ -39,6 +37,8 @@ public class orcTeam : MonoBehaviour {
 		numOrcs.maxValue = armySpawner.MAX_UNITS - numArchers;
 	}
 	
+    // set initial values for unit select sliders
+    // currently 75% orcs, 25% archers
     void initSliders() {
         numOrcs.maxValue = armySpawner.MAX_UNITS * 0.75f;
         numOrcs.value = numOrcs.maxValue;

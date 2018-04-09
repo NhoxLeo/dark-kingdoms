@@ -2,17 +2,10 @@
 using System.Collections;
 
 public enum mvt {stayWithin, stayAt};
+public enum mv { march, random };
 
-public struct mv {
-	public float random;
-	public float march;
-	
-	public mv(float random, float march) {
-		this.random = random;
-		this.march = march;
-	}
-};
 
+// controls unit movement
 public class orc_ctrl : MonoBehaviour {
 
     // references to other scripts on this unit's gameObject
@@ -21,13 +14,17 @@ public class orc_ctrl : MonoBehaviour {
 	// general movement
 	float dir_x = 0;
 	float dir_y = 1.0f;
-	float min_x = 0.6f;
-	float max_x = 15.4f;
+
+    // bounds for legal playing area
+	float min_x = 0.1f;
+	float max_x = 15.7f;
 	float min_y = 0.5f;
 	float max_y = 23.5f;
+
 	int stride = 30;        // makes random movement more natural by increasing chance to keep your current direction
 	int courseStay = 0;     // prevent reversing dir after wall hit just reversed dir
 
+    // see if we have hit the edge of our legal playing area
     void check_edge() {
 		if (transform.position.x < min_x) {
 			dir_x = 1.0f;
@@ -106,8 +103,11 @@ public class orc_ctrl : MonoBehaviour {
 			dir_y = 0;
 		}
 
-        // normalize movement to 1 for whichever is the larger gap, x or y
-        // this makes you move straight to your target
+        // Normalize movement to 1 for whichever is the larger gap, x or y.
+        // Set the distance we move for the closer coordinate (x or y) as
+        // to be an appropriate percent of the further coordinate.
+        // So, for example, if the x coord is 10 away, and the y coord is 20 away,
+        // we will move 0.5 in the x direction, and 1.0 in the y direction.
         diffX = Mathf.Abs(diffX);
         diffY = Mathf.Abs(diffY);
         if (diffX > diffY) {
@@ -123,21 +123,20 @@ public class orc_ctrl : MonoBehaviour {
 	}
 	
 	// stay exactly at a given range from target
+    // not yet implemented obviously
 	void mvt_stayAt() {
 		print("mvt_stayAt()");
 	}
 	
+    // compute movement when unit dolesn't have a target
 	void do_mv() {
-		float random = Random.Range(0.0f, myStats.moveStrat.random);
-		float march = Random.Range(0.0f, myStats.moveStrat.march);
-		float choice = Mathf.Max(random, march);
-		
-		if (choice == random)
+		if (myStats.moveStrat == mv.random)
 			mv_random();
 		else
 			mv_march();
 	}
 	
+    // compute movement when unit has a target
 	void do_mvt() {
 		switch (myStats.moveStratTarget) {
 		case mvt.stayWithin:
@@ -150,7 +149,8 @@ public class orc_ctrl : MonoBehaviour {
 	}
 	
 	// Use this for initialization
-	void Start () {		
+	void Start () {
+        // brown team starts at the top of the screen and moves down
 		if (myStats.teamName == "brown") {
             dir_y = -1.0f;
         }
@@ -158,21 +158,14 @@ public class orc_ctrl : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        // we have a target, exeucte move-with-target strategy
 		if (myStats.target != null) {
             do_mvt();
             return;
 		}
 
-        // prevents orc from immediately moving away from battle
-        // after killing target and before acquiring new target
-        if (myStats.hadTarget > 0) {
-            myStats.hadTarget--;
-            return;
-        }
 
-        //do_mv();      XXX let's cut down on function calls, see if that helps performance
-        //mv_march();
-        check_edge();
-        transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
+        // move
+        do_mv();
     }
 }

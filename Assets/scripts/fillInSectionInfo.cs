@@ -16,10 +16,17 @@ public class fillInSectionInfo : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		GameObject go1;
+		GameObject go1 = null;
 		kingdom_section mySec;
 		
 		go1 = GameObject.Find(misc_global_data.section_to_load);
+
+        if (go1 == null) {
+            Debug.Log("can't find object for " + misc_global_data.section_to_load);
+        } else {
+            Debug.Log("found object for " + misc_global_data.section_to_load);
+        }
+
 		mySec = (kingdom_section) go1.GetComponent(typeof(kingdom_section));
 	
 		sectionName.text = mySec.sectionName;

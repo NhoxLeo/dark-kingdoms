@@ -19,7 +19,6 @@ public class orc_melee_attack : MonoBehaviour {
         //AudioSource.PlayClipAtPoint(meleeBattle[sndfx], transform.position);
 
         interEnemy.applyDamage(damage);
-        myStats.blooded = true;
     }
 
 	// Use this for initialization

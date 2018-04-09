@@ -7,7 +7,6 @@ public class cameraMove : MonoBehaviour {
 
     const float speed = 2.0f;
 
-	// Update is called once per frame
 	void Update () {
         if (Input.GetKey("w")) {
             transform.Translate(0, Time.deltaTime * speed, 0);

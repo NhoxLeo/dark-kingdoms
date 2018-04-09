@@ -13,7 +13,6 @@ public class range_attack : MonoBehaviour {
         damage = Random.Range(myStats.ranged_dmg_min, myStats.ranged_dmg_max);
 
         interEnemy.applyDamage(damage);
-        myStats.blooded = true;
     }
 
 	// Use this for initialization
