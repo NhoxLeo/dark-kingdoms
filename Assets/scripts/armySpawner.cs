@@ -20,8 +20,9 @@ public class armySpawner : MonoBehaviour {
     const float X_RAND = 0.1f;
     float x_rand_pos;
 
-
     orcTeam myTeam;
+
+    int numFrames = 0;
 
     public void updateNumAlive() {
         numAliveText.text = numAlive.ToString();
@@ -114,6 +115,7 @@ public class armySpawner : MonoBehaviour {
             else {
                 temp = Instantiate(orcObj, actualSpawn, Quaternion.identity) as GameObject;
             }
+
             newOrc = temp.GetComponent<orc_stats>();
             newOrc.teamName = gameObject.tag;
             if (gameObject.tag == "brown") {
@@ -122,6 +124,14 @@ public class armySpawner : MonoBehaviour {
             else {
                 newOrc.enemyTeam = "brown";
             }
+        }
+    }
+
+    public void Update() {
+        // beginnning framework for analytics
+        numFrames++;
+        if ((numFrames % 20) == 0) {
+            //print("Num Alive " + gameObject.tag + " : " + numAlive);
         }
     }
 }

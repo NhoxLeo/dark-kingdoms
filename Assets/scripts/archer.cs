@@ -8,6 +8,7 @@ public class archer : MonoBehaviour {
     public orc_stats myStats;
 	public targetting myTrg;
 	public range_attack my_ranged_attack;
+    public orc_ctrl myCtrl;
 	
 	// Use this for initialization
 	void Start () {		
@@ -21,7 +22,7 @@ public class archer : MonoBehaviour {
         float rndDelay = Random.Range(0.0f, 1.0f - myStats.initiative);
         float baseDelay = (orc_stats.baseInitMultiplier * (1.0f - myStats.initiative)) + myStats.initiative;
         float totalDelay = baseDelay + rndDelay;
-        Debug.Log("archer " + baseDelay + " " + totalDelay);
+ 
         InvokeRepeating("archer_impl", 3f, totalDelay);
     }
 	
@@ -37,7 +38,12 @@ public class archer : MonoBehaviour {
         }
 
         if (Vector2.Distance(transform.position, myStats.target.transform.position) < orc_stats.rangedRange) {
-			my_ranged_attack.bowHit(myStats.target);
+            // enable attack animation, if we have one
+            if (myCtrl.numAtkSprites > 0) {
+                myCtrl.attacking = (myCtrl.numAtkSprites * myCtrl.numFramesPerAtkSprite) + 1;
+            }
+
+            my_ranged_attack.bowHit(myStats.target);
 		}
 	}
 }

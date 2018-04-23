@@ -12,9 +12,9 @@
 	<h2>A world torn by war.</h2>
 
 	<video width="40%" controls preload >
-		<source src="dark_kingdoms_1-03.mp4">
+		<source src="dark_kingdoms_1-04.mp4">
 	</video>
-	<p>v1.3</p>
+	<p>v1.04</p>
 	<br/><br/><br/><br/>
 </div>
 
@@ -238,6 +238,47 @@
 		
 		<br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
 		<img class="med-image" src="orcs-march.gif">
+	</div>
+</div>
+
+<div>
+	<p>
+		<hr><br/><br/>
+	</p>
+</div>
+
+<div>
+	<div class="text-left indentleft">
+		<h2 class="indent">v1.4  April 22, 2018</h2>
+		<p>Big changes</p>
+		<ul>
+			<li>replaced orc warrior sprite with a new image which had a good sprite sheet</li>
+			<li>added change of sprite based on the direction the unit is moving - orc warrior only so far, need a good archer sprite sheet</li>
+			<li>added attack sprite animation</li>
+		</ul>
+		<p>Under the covers changes</p>
+		<ul>
+			<li>reduced movement speed from 0.3 to 0.2, they were still too much like ants running around</li>
+			<li>Solved "negative still alive" issue.  It seems Destroy() takes some time to actually destroy the object and it was allowing
+			    calls to applyDamage() even after Destroy() had been called on the object, resulting in objects occasionally being "killed"
+				twice.  Solved it by setting a boolean when the object it going to be destroyed, and having applyDamage() return immediately
+				if the boolean is set.
+			</li>
+			<li>set canvas on troop selection scene to scale with window size</li>
+			<li>anchored text on combat scene to top left corner</li>
+		</ul>
+	</div>
+	
+	<div class="text-right center">
+		<p><br/><br/></p>
+		<video width="80%" controls preload >
+			<source src="dark_kingdoms_1-04.mp4">
+		</video>
+		
+		<p><br/><br/></p>
+		<video width="80%" controls preload >
+			<source src="melee_combat_closeup.mp4">
+		</video>
 	</div>
 </div>
 

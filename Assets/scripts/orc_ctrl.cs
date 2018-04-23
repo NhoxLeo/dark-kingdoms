@@ -3,17 +3,33 @@ using System.Collections;
 
 public enum mvt {stayWithin, stayAt};
 public enum mv { march, random };
+public enum mv_dir { n, ne, e, se, s, sw, w, nw };
 
 
-// controls unit movement
+// controls unit movement and sprite animation
 public class orc_ctrl : MonoBehaviour {
 
     // references to other scripts on this unit's gameObject
     public orc_stats myStats;
 
-	// general movement
-	float dir_x = 0;
+    // animation sprites
+    public Sprite[] dirSprites;
+    public Sprite[] atkSprite1;
+    public Sprite[] atkSprite2;
+    public Sprite[] atkSprite3;
+    public Sprite[] atkSprite4;
+
+    public bool moveAnimation;
+    public int numAtkSprites;                 // how many different sprites are used for attack animation?
+    public int numFramesPerAtkSprite;         // this should be set to 2 in editor
+    int numFramesToAnimate;
+    public int attacking;                     // set to numAtkSprites * numFramesPerAtkSprite whan we attack
+
+    // general movement
+    float dir_x = 0;
 	float dir_y = 1.0f;
+    mv_dir prevDir = mv_dir.n;
+
 
     // bounds for legal playing area
 	float min_x = 0.1f;
@@ -23,6 +39,60 @@ public class orc_ctrl : MonoBehaviour {
 
 	int stride = 30;        // makes random movement more natural by increasing chance to keep your current direction
 	int courseStay = 0;     // prevent reversing dir after wall hit just reversed dir
+
+    void checkForDirChange() {
+        mv_dir currDir = prevDir;
+
+        if (dir_x > 0) {
+            if (dir_y > 0) {
+                currDir = mv_dir.ne;
+            } else if (dir_y < 0) {
+                currDir = mv_dir.se;
+            } else {
+                currDir = mv_dir.e;
+            }
+        } else if (dir_x < 0) {
+            if (dir_y > 0) {
+                currDir = mv_dir.nw;
+            }
+            else if (dir_y < 0) {
+                currDir = mv_dir.sw;
+            }
+            else {
+                currDir = mv_dir.w;
+            }
+        } else {
+            if (dir_y > 0) {
+                currDir = mv_dir.n;
+            }
+            else if (dir_y < 0) {
+                currDir = mv_dir.s;
+            }
+        }
+
+        if (attacking > 0) {
+            // attacking, process next attack sprite
+            // animation was too fast, so I set this up so each sprite lasts 2 frames
+            if (attacking == 1) {
+                this.GetComponent<SpriteRenderer>().sprite = dirSprites[(int)currDir];
+            } else if (attacking >= numFramesToAnimate) {
+                this.GetComponent<SpriteRenderer>().sprite = atkSprite1[(int)currDir];
+            } else if (attacking == (numFramesToAnimate - numFramesPerAtkSprite)) {
+                this.GetComponent<SpriteRenderer>().sprite = atkSprite2[(int)currDir];
+            } else if (attacking == (numFramesToAnimate - 2 * numFramesPerAtkSprite)) {
+                this.GetComponent<SpriteRenderer>().sprite = atkSprite3[(int)currDir];
+            } else if (attacking == (numFramesToAnimate - 3 * numFramesPerAtkSprite)) {
+                this.GetComponent<SpriteRenderer>().sprite = atkSprite4[(int)currDir];
+            }
+            attacking--;
+        } else {
+            // not attacking, see if we have changed direction
+            if ((moveAnimation) && (currDir != prevDir)) {
+                prevDir = currDir;
+                this.GetComponent<SpriteRenderer>().sprite = dirSprites[(int)currDir];
+            }
+        }
+    }
 
     // see if we have hit the edge of our legal playing area
     void check_edge() {
@@ -67,6 +137,7 @@ public class orc_ctrl : MonoBehaviour {
 		}
 		
 		check_edge();
+        checkForDirChange();
 		transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
 	}
 	
@@ -74,14 +145,18 @@ public class orc_ctrl : MonoBehaviour {
 	void mv_march() {
 		// running into boundaries should set up march directions if only march is set
 		check_edge();
+        checkForDirChange();
 		transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
 	}
 	
 	// stay within a certain range of target
 	void mvt_stayWithin() {
-		if (Vector2.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange)
+		if (Vector2.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange) {
+            checkForDirChange();
             // we are as close to the target as we want to be
-			return;
+            return;
+        }
+            
 
         // get X and Y distance to target
         float diffX = transform.position.x - myStats.target.transform.position.x;
@@ -118,6 +193,7 @@ public class orc_ctrl : MonoBehaviour {
 
         check_edge();
 
+        checkForDirChange();
         // move this object
 		transform.Translate(Time.deltaTime * dir_x * myStats.speed, Time.deltaTime * dir_y * myStats.speed, 0);
 	}
@@ -153,7 +229,11 @@ public class orc_ctrl : MonoBehaviour {
         // brown team starts at the top of the screen and moves down
 		if (myStats.teamName == "brown") {
             dir_y = -1.0f;
+            prevDir = mv_dir.s;
         }
+
+        // extra frame is to move back to the movement sprite
+        numFramesToAnimate = (numAtkSprites * numFramesPerAtkSprite) + 1;
     }
 	
 	// Update is called once per frame
