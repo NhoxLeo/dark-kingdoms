@@ -6,7 +6,9 @@ public class orc_melee_attack : MonoBehaviour {
     // references to other scripts on this unit's gameObject
     public orc_stats myStats;
 
-	public AudioClip[] meleeBattle = new AudioClip[8];
+    public Animator animator;
+
+    public AudioClip[] meleeBattle = new AudioClip[8];
 
 	public void swordHit(GameObject enemy) {
 		int damage;
@@ -18,11 +20,15 @@ public class orc_melee_attack : MonoBehaviour {
         //sndfx = Random.Range(0,8);
         //AudioSource.PlayClipAtPoint(meleeBattle[sndfx], transform.position);
 
+        if (animator) {
+            animator.SetTrigger("attack");
+        }
         interEnemy.applyDamage(damage);
 
     }
 
 	// Use this for initialization
 	void Start () {
+        animator = GetComponent<Animator>();
     }
 }

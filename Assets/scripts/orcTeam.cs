@@ -8,6 +8,8 @@ public class orcTeam : MonoBehaviour {
 	public Text numOrcsText;
 	public Slider numArchers;
 	public Text numArchersText;
+
+    public static bool animationOn = true;
 	
     // get number of melee orcs from melee orc slider
 	public int get_numOrcs() {
@@ -45,6 +47,10 @@ public class orcTeam : MonoBehaviour {
 
         numArchers.maxValue = armySpawner.MAX_UNITS * 0.25f;
         numArchers.value = numArchers.maxValue;
+    }
+
+    public void setAnimation(bool value) {
+        animationOn = value;
     }
 
 	// Use this for initialization

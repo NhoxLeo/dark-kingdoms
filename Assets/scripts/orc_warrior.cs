@@ -42,12 +42,6 @@ public class orc_warrior : MonoBehaviour {
         }
 
 		if (Vector2.Distance(transform.position, myStats.target.transform.position) < orc_stats.meleeRange) {
-            // enable attack animation, if we have one
-            if (myCtrl.numAtkSprites > 0) {
-                myCtrl.attacking = (myCtrl.numAtkSprites * myCtrl.numFramesPerAtkSprite) + 1;
-            }
-           
-           
             my_melee_attack.swordHit(myStats.target);
 		}
 	}

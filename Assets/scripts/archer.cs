@@ -38,11 +38,6 @@ public class archer : MonoBehaviour {
         }
 
         if (Vector2.Distance(transform.position, myStats.target.transform.position) < orc_stats.rangedRange) {
-            // enable attack animation, if we have one
-            if (myCtrl.numAtkSprites > 0) {
-                myCtrl.attacking = (myCtrl.numAtkSprites * myCtrl.numFramesPerAtkSprite) + 1;
-            }
-
             my_ranged_attack.bowHit(myStats.target);
 		}
 	}

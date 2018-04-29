@@ -12,23 +12,12 @@ public class orc_ctrl : MonoBehaviour {
     // references to other scripts on this unit's gameObject
     public orc_stats myStats;
 
-    // animation sprites
-    public Sprite[] dirSprites;
-    public Sprite[] atkSprite1;
-    public Sprite[] atkSprite2;
-    public Sprite[] atkSprite3;
-    public Sprite[] atkSprite4;
-
-    public bool moveAnimation;
-    public int numAtkSprites;                 // how many different sprites are used for attack animation?
-    public int numFramesPerAtkSprite;         // this should be set to 2 in editor
-    int numFramesToAnimate;
-    public int attacking;                     // set to numAtkSprites * numFramesPerAtkSprite whan we attack
+    public Animator animator;
 
     // general movement
-    float dir_x = 0;
-	float dir_y = 1.0f;
-    mv_dir prevDir = mv_dir.n;
+    public float dir_x = 0;
+	public float dir_y = 1.0f;
+    public mv_dir prevDir = mv_dir.n;
 
 
     // bounds for legal playing area
@@ -37,59 +26,100 @@ public class orc_ctrl : MonoBehaviour {
 	float min_y = 0.5f;
 	float max_y = 23.5f;
 
-	int stride = 30;        // makes random movement more natural by increasing chance to keep your current direction
-	int courseStay = 0;     // prevent reversing dir after wall hit just reversed dir
+    int strideMin = 50;     // makes random movement more natural by staying in a certain direction for a while
+    int strideMax = 100;        
+	public int courseStay = 0;     // prevent reversing dir after wall hit just reversed dir
 
     void checkForDirChange() {
-        mv_dir currDir = prevDir;
+        if (!animator) {
+            return;
+        }
 
-        if (dir_x > 0) {
-            if (dir_y > 0) {
-                currDir = mv_dir.ne;
-            } else if (dir_y < 0) {
+        mv_dir currDir;
+        bool north = false, south = false, east = false, west = false;
+
+        // normalize to larger
+        if (Mathf.Abs(dir_x) > Mathf.Abs(dir_y)) {
+            // no divide by zero
+            if (dir_x == 0.0f) {
+                dir_x = 0.1f;
+            }
+
+            dir_x = dir_x / Mathf.Abs(dir_x);
+            dir_y = dir_y / Mathf.Abs(dir_x);
+        } else {
+            // no divide by zero
+            if (dir_y == 0.0f) {
+                dir_y = 0.1f;
+            }
+
+            dir_x = dir_x / Mathf.Abs(dir_y);
+            dir_y = dir_y / Mathf.Abs(dir_y);
+        }
+
+        if (dir_x > 0.5f) {
+            east = true;
+        } else if (dir_x < -0.5f) {
+            west = true;
+        }
+
+        if (dir_y > 0.5f) {
+            north = true;
+        } else if (dir_y < -0.5f) {
+            south = true;
+        }
+
+        if (east) {
+            if (south) {
                 currDir = mv_dir.se;
+            } else if (north) {
+                currDir = mv_dir.ne;
             } else {
                 currDir = mv_dir.e;
             }
-        } else if (dir_x < 0) {
-            if (dir_y > 0) {
-                currDir = mv_dir.nw;
-            }
-            else if (dir_y < 0) {
+        } else if (west) {
+            if (south) {
                 currDir = mv_dir.sw;
+            }
+            else if (north) {
+                currDir = mv_dir.nw;
             }
             else {
                 currDir = mv_dir.w;
             }
+        } else if (north) {
+            currDir = mv_dir.n;
         } else {
-            if (dir_y > 0) {
-                currDir = mv_dir.n;
-            }
-            else if (dir_y < 0) {
-                currDir = mv_dir.s;
-            }
+            currDir = mv_dir.s;
         }
 
-        if (attacking > 0) {
-            // attacking, process next attack sprite
-            // animation was too fast, so I set this up so each sprite lasts 2 frames
-            if (attacking == 1) {
-                this.GetComponent<SpriteRenderer>().sprite = dirSprites[(int)currDir];
-            } else if (attacking >= numFramesToAnimate) {
-                this.GetComponent<SpriteRenderer>().sprite = atkSprite1[(int)currDir];
-            } else if (attacking == (numFramesToAnimate - numFramesPerAtkSprite)) {
-                this.GetComponent<SpriteRenderer>().sprite = atkSprite2[(int)currDir];
-            } else if (attacking == (numFramesToAnimate - 2 * numFramesPerAtkSprite)) {
-                this.GetComponent<SpriteRenderer>().sprite = atkSprite3[(int)currDir];
-            } else if (attacking == (numFramesToAnimate - 3 * numFramesPerAtkSprite)) {
-                this.GetComponent<SpriteRenderer>().sprite = atkSprite4[(int)currDir];
-            }
-            attacking--;
-        } else {
-            // not attacking, see if we have changed direction
-            if ((moveAnimation) && (currDir != prevDir)) {
-                prevDir = currDir;
-                this.GetComponent<SpriteRenderer>().sprite = dirSprites[(int)currDir];
+        if (currDir != prevDir) {
+            prevDir = currDir;
+            switch (currDir) {
+                case mv_dir.n:
+                    animator.SetTrigger("face n");
+                    break;
+                case mv_dir.ne:
+                    animator.SetTrigger("face ne");
+                    break;
+                case mv_dir.e:
+                    animator.SetTrigger("face e");
+                    break;
+                case mv_dir.se:
+                    animator.SetTrigger("face se");
+                    break;
+                case mv_dir.s:
+                    animator.SetTrigger("face s");
+                    break;
+                case mv_dir.sw:
+                    animator.SetTrigger("face sw");
+                    break;
+                case mv_dir.w:
+                    animator.SetTrigger("face w");
+                    break;
+                case mv_dir.nw:
+                    animator.SetTrigger("face nw");
+                    break;
             }
         }
     }
@@ -99,41 +129,35 @@ public class orc_ctrl : MonoBehaviour {
 		if (transform.position.x < min_x) {
 			dir_x = 1.0f;
 			dir_y = 0;
-			courseStay = stride;
+			courseStay = strideMax;
 		} else if (transform.position.x > max_x) {
 			dir_x = -1.0f;
 			dir_y = 0;
-			courseStay = stride;
+			courseStay = strideMax;
 		}
 		
 		if (transform.position.y < min_y) {
 			dir_x = 0;
 			dir_y = 1.0f;
-			courseStay = stride;
+			courseStay = strideMax;
 		} else if (transform.position.y > max_y) {
 			dir_x = 0;
 			dir_y = -1.0f;
-			courseStay = stride;
+			courseStay = strideMax;
 		}
 	}
 	
 	// move random, unless courseStay is set (e.g. we just hit a boundary)
 	void mv_random() {
-		float chg_x, chg_y;
-
-		// don't change direction if we just hit the wall
+		// don't change direction until our stride is over
 		if (courseStay > 0) {
 			courseStay--;
 		} else {
-            // stride tends to keep an orc going in the same direction
-            // only occasionally changing direction
-			chg_x = Random.Range(-1, stride);
-			chg_y = Random.Range(-1, stride);
+            // stride is over, pick new direction and stride
+			dir_x = Random.Range(-1.0f, 1.0f);
+			dir_y = Random.Range(-1.0f, 1.0f);
 
-			if (chg_x < 2.0)
-				dir_x = chg_x;
-			if (chg_y < 2.0)
-				dir_y = chg_y;
+            courseStay = Random.Range(strideMin, strideMax);
 		}
 		
 		check_edge();
@@ -153,10 +177,18 @@ public class orc_ctrl : MonoBehaviour {
 	void mvt_stayWithin() {
 		if (Vector2.Distance(transform.position, myStats.target.transform.position) <= myStats.targetRange) {
             checkForDirChange();
+
             // we are as close to the target as we want to be
+            if (animator) {
+                animator.SetBool("walking", false);
+            }
+            
             return;
         }
-            
+
+        if (animator) {
+            animator.SetBool("walking", true);
+        }
 
         // get X and Y distance to target
         float diffX = transform.position.x - myStats.target.transform.position.x;
@@ -224,27 +256,42 @@ public class orc_ctrl : MonoBehaviour {
 		}
 	}
 	
+
+    void Awake() {
+        animator = GetComponent<Animator>();
+
+        if ((animator != null) && (!orcTeam.animationOn)) {
+            animator.enabled = false;
+            animator = null;
+        }
+    }
+
 	// Use this for initialization
 	void Start () {
         // brown team starts at the top of the screen and moves down
-		if (myStats.teamName == "brown") {
+        if (myStats.teamName == "brown") {
             dir_y = -1.0f;
             prevDir = mv_dir.s;
-        }
 
-        // extra frame is to move back to the movement sprite
-        numFramesToAnimate = (numAtkSprites * numFramesPerAtkSprite) + 1;
+            if (animator) {
+                animator.SetTrigger("face s");
+            }
+        }
     }
 	
 	// Update is called once per frame
 	void Update () {
         // we have a target, exeucte move-with-target strategy
 		if (myStats.target != null) {
+            courseStay = 0;
             do_mvt();
             return;
 		}
 
-
+        if (animator) {
+            animator.SetBool("walking", true);
+        }
+        
         // move
         do_mv();
     }
